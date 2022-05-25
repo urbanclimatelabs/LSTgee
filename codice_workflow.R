@@ -2,12 +2,10 @@
 
 library(rgee)
 library(rgeeExtra)
-library(stars)
 library(raster)
 library(sf)
 library(scales)  # Scale functions for visualization
 library(RColorBrewer) 
-library(LSTtools)  # 
 library(elsa) # https://github.com/babaknaimi/elsa
 
 ###############################################################################
@@ -24,11 +22,6 @@ ee_user_info()
 start_date = '2017-06-01';
 end_date   = '2021-08-31';
 
-###############################################################################
-# search dataset 
-# ee_search_dataset() %>%
-#   ee_search_tags("mod11a1") %>%
-#   ee_search_display()
 
 ################################################################################
 # create useful palette 
@@ -46,13 +39,13 @@ geometry_piana <- ee$Geometry$Rectangle(
 )
 
 ####################################################################################
-# Informazioni features da gee
+# load features from gee
 
 Firenze_comune = ee$FeatureCollection("users/giuliaguerri/Firenze_boundaries");
 Roma_comune = ee$FeatureCollection("users/giuliaguerri/Roma_boundaries");
 
 
-# Informazioni features da da locale
+# load features from local
 
 Firenze_comune  <- st_read("comuni/Firenze_comune_3035.shp") %>% st_transform("EPSG:4326") %>% sf_as_ee()
 
@@ -70,7 +63,7 @@ elevation = db_elev$select('elevation')$clip(geometry_piana)
 
 
 ##################################################################################################################################
-# Maschera mare terra
+# Masking sea land
 
 landMask <- ee$Image("CGIAR/SRTM90_V4")$mask()
 
@@ -201,6 +194,7 @@ hotspot<- reclassify(gstar, c(-Inf,-2.58,-3,
                                 2.58,Inf,3)) # 99
 
 plot(hotspot,col=rev(rainbow(7)))
+
 plot(raster("hotspot_arcgis_FI.tif"),col=rev(rainbow(7)))
 
 # labels=c("Cold spot: 99% confidence", 
@@ -212,16 +206,20 @@ plot(raster("hotspot_arcgis_FI.tif"),col=rev(rainbow(7)))
 #           "Hot spot: 99% confidence")
 
 
-
-
-
-
-
-
-
-
 #######################################################################################
-# reference
+# Reference
 
-# https://cran.r-project.org/web/packages/elsa/vignettes/elsa.html
-  
+# [1] Ermida, S.L., Soares, P., Mantas, V., Göttsche, F.-M., Trigo, I.F., 2020. Google Earth Engine open-source code for Land Surface Temperature estimation from the Landsat series. 
+#      Remote Sensing, 12 (9), 1471; https://doi.org/10.3390/rs12091471
+#      https://github.com/sofiaermida/Landsat_SMW_LST
+      
+      
+# [2] Naimi B, Hamm NA, Groen TA, Skidmore AK, Toxopeus AG, Alibakhshi S (2019). “ELSA: An
+#      Entropy-based Local indicator of Spatial Association.” _Spatial Statistics_, *29*, 66-88. doi: 10.1016/j.spasta.2018.10.001 (URL:
+#       https://doi.org/10.1016/j.spasta.2018.10.001).
+#       https://cran.r-project.org/web/packages/elsa/vignettes/elsa.html
+
+
+# [3] C Aybar, Q Wu, L Bautista, R Yali and A Barja (2020) rgee: An R package for
+#   interacting with Google Earth Engine Journal of Open Source Software URL
+#   https://github.com/r-earthengine/rgeeExtra/. 
